@@ -21,7 +21,7 @@
  *
  *   listeners = [
  *     {
- *       instance_port     = 8000
+ *       instance_port     = 80
  *       instance_protocol = "HTTP"
  *       lb_port           = 80
  *       lb_protocol       = "HTTP"
@@ -60,7 +60,7 @@ locals {
       bucket        = "${var.logging_bucket_name}"
       bucket_prefix = "${var.logging_bucket_prefix}"
       interval      = "${var.logging_bucket_log_interval}"
-      enabled       = true
+      enabled       = false
     }]
 
     disabled = "${list()}"
@@ -73,7 +73,7 @@ resource "aws_elb" "clb" {
 
   access_logs = ["${local.access_logs[local.access_logs_config]}"]
 
-  listener = "${var.listeners}"
+  listener = ["${var.listeners}"]
 
   health_check {
     healthy_threshold   = "${var.health_check_threshold}"
@@ -175,30 +175,6 @@ resource "aws_s3_bucket_policy" "log_bucket_policy" {
   ]
 }
 POLICY
-}
-
-# enable cloudwatch/RS ticket creation
-module "unhealthy_host_count_alarm" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.0.1"
-
-  alarm_description        = "Unhealthy Host count is greater than or equal to threshold, creating ticket."
-  alarm_name               = "${var.clb_name}_unhealthy_host_count_alarm"
-  comparison_operator      = "GreaterThanOrEqualToThreshold"
-  evaluation_periods       = 10
-  metric_name              = "UnHealthyHostCount"
-  namespace                = "AWS/ELB"
-  notification_topic       = "${var.notification_topic}"
-  period                   = 60
-  rackspace_alarms_enabled = "${var.rackspace_alarms_enabled}"
-  rackspace_managed        = "${var.rackspace_managed}"
-  severity                 = "emergency"
-  statistic                = "Maximum"
-  threshold                = 1
-  unit                     = "Count"
-
-  dimensions = [{
-    LoadBalancer = "${aws_elb.clb.id}"
-  }]
 }
 
 # create r53 record with alias

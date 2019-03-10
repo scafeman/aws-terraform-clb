@@ -68,7 +68,7 @@ variable "cross_zone" {
 variable "listeners" {
   description = "List of Maps describing the LB options including instance_port (The port on the instance to route to), instance_protocol (The protocol to use to the instance: HTTP, HTTPS, TCP, SSL), lb_port (The port to listen on for the load balancer), lb_protocol (The protocol to listen on. Valid values are HTTP, HTTPS, TCP, or SSL), ssl_certificate_id (The ARN of an SSL certificate you have uploaded to AWS IAM. Only valid when lb_protocol is either HTTPS or SSL)"
   type        = "list"
-  default     = []
+  default     = [{instance_port = 80, instance_protocol = "HTTP", lb_port = 80, lb_protocol = "HTTP"}]
 }
 
 variable "notification_topic" {
@@ -193,7 +193,7 @@ variable "logging_bucket_retention" {
 variable "logging_bucket_name" {
   description = "The number of days to retain load balancer logs. Parameter is ignored if not creating a new S3 bucket."
   type        = "string"
-  default     = ""
+  default     = "s3-eu1-mscafe-terraform.s3.amazonaws.com"
 }
 
 variable "logging_bucket_prefix" {
@@ -229,11 +229,13 @@ variable "internal_loadbalancer" {
 variable "security_groups" {
   description = "A list of EC2 security groups to assign to this resource."
   type        = "list"
+  default     = ["sg-0f4f553ff3006ff3d", "sg-07afded3027712476"]
 }
 
 variable "subnets" {
   description = "A list of subnet IDs to attach to the ELB."
   type        = "list"
+  default     = ["subnet-0daca5329b395c812", "subnet-0a73f8f74c9536745"]
 }
 
 variable "idle_timeout" {
